@@ -11,10 +11,11 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String
+  id               String  @id @default(uuid())
+  name             String
+  email            String  @unique
+  password         String
+  accountConfirmed Boolean @default(false) @map("account_confirmed")
 
   dateOfBirth DateTime? @map("date_of_birth")
   avatar      String?

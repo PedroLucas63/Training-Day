@@ -17,11 +17,13 @@ import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Public()
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
@@ -82,5 +84,10 @@ export class UserController {
     const avatarPath = `imgs/avatars/${file.filename}`;
 
     return this.userService.updateAvatar(id, avatarPath);
+  }
+
+  @Get('/confirmation/:id')
+  async confirmUser(@Param('id') id: string) {
+    return this.userService.confirmUser(id);
   }
 }

@@ -8,10 +8,15 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { User } from './entities/user.entity';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailService: MailService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const { confirmPassword, ...user } = createUserDto;
@@ -19,7 +24,11 @@ export class UserService {
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
-    return this.prisma.user.create({ data: user });
+    const createdUser: User = await this.prisma.user.create({ data: user });
+
+    await this.mailService.sendUserConfirmation(createdUser);
+
+    return createdUser;
   }
 
   async findAll() {
@@ -30,6 +39,10 @@ export class UserService {
   async findOne(id: string) {
     /// TODO: Proteção
     return this.prisma.user.findUnique({ where: { id } });
+  }
+
+  async findByEmail(email: string) {
+    return this.prisma.user.findUnique({ where: { email } });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -81,6 +94,13 @@ export class UserService {
     return this.prisma.user.update({
       where: { id },
       data: { avatar },
+    });
+  }
+
+  async confirmUser(id: string) {
+    return this.prisma.user.update({
+      where: { id },
+      data: { accountConfirmed: true },
     });
   }
 }

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Confirmação de E-mail - Training Day</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .email-container {
+      width: 100%;
+      background-color: #f4f4f4;
+      padding: 20px 0;
+    }
+    .email-content {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      text-align: center;
+      padding: 20px;
+      background-color: #0077b6;
+      border-radius: 8px 8px 0 0;
+      color: #fff;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .body {
+      padding: 20px;
+      text-align: center;
+    }
+    .body h2 {
+      color: #0077b6;
+      margin-top: 0;
+    }
+    .body p {
+      font-size: 16px;
+      line-height: 1.5;
+      color: #555;
+    }
+    .button-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+    .confirm-button {
+      background-color: #0077b6;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 20px;
+    }
+    .footer a {
+      color: #0077b6;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="email-content">
+      <!-- Header -->
+      <div class="header">
+        <h1>Training Day</h1>
+      </div>
+
+      <!-- Body -->
+      <div class="body">
+        <h2>Olá, {{name}}!</h2>
+        <p>Estamos muito felizes que você decidiu se juntar a nós na <strong>Training Day</strong>.</p>
+        <p>Para completar seu cadastro e começar sua jornada de aprendizado, por favor, confirme seu endereço de e-mail clicando no botão abaixo.</p>
+        
+        <div class="button-container">
+          <a href="{{url}}" class="confirm-button">Confirmar E-mail</a>
+        </div>
+
+        <p>Se você não criou uma conta na Training Day, por favor ignore este e-mail.</p>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p>© 2024 Training Day. Todos os direitos reservados.</p>
+        <p>Precisa de ajuda? <a href="mailto:support@trainingday.com">Entre em contato conosco</a></p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
