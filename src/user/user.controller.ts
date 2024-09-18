@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Public } from 'src/decorators/public.decorator';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -40,12 +42,28 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: any,
+  ) {
+    if (currentUser['sub'] !== id) {
+      throw new ForbiddenException(
+        'You do not have permission to update this user',
+      );
+    }
+
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string, @CurrentUser() currentUser: any) {
+    if (currentUser['sub'] !== id) {
+      throw new ForbiddenException(
+        'You do not have permission to remove this user',
+      );
+    }
+
     return this.userService.remove(id);
   }
 
@@ -53,7 +71,14 @@ export class UserController {
   updatePassword(
     @Param('id') id: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto,
+    @CurrentUser() currentUser: any,
   ) {
+    if (currentUser['sub'] !== id) {
+      throw new ForbiddenException(
+        'You do not have permission to update this user',
+      );
+    }
+
     return this.userService.updatePassword(id, updateUserPasswordDto);
   }
 
@@ -76,7 +101,14 @@ export class UserController {
   async updateAvatar(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() currentUser: any,
   ) {
+    if (currentUser['sub'] !== id) {
+      throw new ForbiddenException(
+        'You do not have permission to update this user',
+      );
+    }
+
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
@@ -86,6 +118,13 @@ export class UserController {
     return this.userService.updateAvatar(id, avatarPath);
   }
 
+  @Public()
+  @Get('/send-email-confirmation/:id')
+  async sendEmailConfirmation(@Param('id') id: string) {
+    return this.userService.sendEmailConfirmation(id);
+  }
+
+  @Public()
   @Get('/confirmation/:id')
   async confirmUser(@Param('id') id: string) {
     return this.userService.confirmUser(id);

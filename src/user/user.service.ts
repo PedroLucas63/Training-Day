@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -10,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { User } from './entities/user.entity';
 import { MailService } from 'src/mail/mail.service';
-
+///TODO: Tratar saídas
 @Injectable()
 export class UserService {
   constructor(
@@ -24,46 +25,68 @@ export class UserService {
     const salt = await bcrypt.genSalt();
     user.password = await bcrypt.hash(user.password, salt);
 
-    const createdUser: User = await this.prisma.user.create({ data: user });
+    try {
+      const createdUser: User = await this.prisma.user.create({ data: user });
 
-    await this.mailService.sendUserConfirmation(createdUser);
+      await this.mailService.sendUserConfirmation(createdUser);
 
-    return createdUser;
+      return createdUser;
+    } catch (error) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('User with this email already exists');
+      }
+    }
   }
 
   async findAll() {
-    /// TODO: Proteção
     return this.prisma.user.findMany();
   }
 
   async findOne(id: string) {
-    /// TODO: Proteção
-    return this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
+    return user;
   }
 
-  async findByEmail(email: string) {
-    return this.prisma.user.findUnique({ where: { email } });
+  async findOneByEmail(email: string) {
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    return user;
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    /// TODO: Proteção
-    return this.prisma.user.update({
-      where: { id },
-      data: updateUserDto,
-    });
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: updateUserDto,
+      });
+
+      return user;
+    } catch (error) {
+      if (error.message === 'P2025') {
+        throw new NotFoundException("User doesn't exist");
+      } else if (error.code === 'P2002') {
+        throw new ConflictException('User with this email already exists');
+      }
+    }
   }
 
   async remove(id: string) {
-    /// TODO: Proteção
-    return this.prisma.user.delete({ where: { id } });
+    try {
+      const user = await this.prisma.user.delete({ where: { id } });
+
+      return user;
+    } catch (error) {
+      if (error.message === 'P2025') {
+        throw new NotFoundException("User doesn't exist");
+      }
+    }
   }
 
   async updatePassword(
     id: string,
     updateUserPasswordDto: UpdateUserPasswordDto,
   ) {
-    /// TODO: Proteção
-
     const { currentPassword, newPassword } = updateUserPasswordDto;
 
     const user = await this.prisma.user.findUnique({ where: { id } });
@@ -90,17 +113,44 @@ export class UserService {
   }
 
   async updateAvatar(id: string, avatar: string) {
-    /// TODO: Proteção
-    return this.prisma.user.update({
-      where: { id },
-      data: { avatar },
-    });
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: { avatar },
+      });
+
+      return user;
+    } catch (error) {
+      if (error.message === 'P2025') {
+        throw new NotFoundException("User doesn't exist");
+      }
+    }
+  }
+
+  async sendEmailConfirmation(id: string) {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException("User doesn't exist");
+    }
+
+    if (!user.accountConfirmed) {
+      await this.mailService.sendUserConfirmation(user);
+    }
   }
 
   async confirmUser(id: string) {
-    return this.prisma.user.update({
-      where: { id },
-      data: { accountConfirmed: true },
-    });
+    try {
+      const user = await this.prisma.user.update({
+        where: { id },
+        data: { accountConfirmed: true },
+      });
+
+      return user;
+    } catch (error) {
+      if (error.message === 'P2025') {
+        throw new NotFoundException("User doesn't exist");
+      }
+    }
   }
 }

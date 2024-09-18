@@ -10,6 +10,7 @@ export class CreateUserDto {
   email: string;
 
   @IsStrongPassword()
+  @Length(8, 24)
   password: string;
 
   @Match('password', { message: "Passwords don't match" })
