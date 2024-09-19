@@ -38,7 +38,7 @@ model Training {
   maximumParticipants Int?     @map("maximum_participants")
   password            String?
 
-  creator              User                   @relation(fields: [creatorId], references: [id])
+  creator              User                   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   TrainingParticipants TrainingParticipants[]
 
   @@map("trainings")
@@ -49,8 +49,8 @@ model TrainingParticipants {
   trainingId    String
   participantId String @map("participant_id")
 
-  training    Training @relation(fields: [trainingId], references: [id])
-  participant User     @relation(fields: [participantId], references: [id])
+  training    Training @relation(fields: [trainingId], references: [id], onDelete: Cascade)
+  participant User     @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@map("training_participants")
 }

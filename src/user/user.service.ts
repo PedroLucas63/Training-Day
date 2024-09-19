@@ -153,4 +153,34 @@ export class UserService {
       }
     }
   }
+
+  async findCreatedTrainings(id: string) {
+    try {
+      const trainings = await this.prisma.training.findMany({
+        where: { creatorId: id },
+      });
+
+      return trainings;
+    } catch (error) {
+      throw new Error("Couldn't get trainings");
+    }
+  }
+
+  async findAllTrainings(id: string) {
+    try {
+      const trainings = await this.prisma.training.findMany({
+        where: {
+          TrainingParticipants: {
+            some: {
+              participantId: id,
+            },
+          },
+        },
+      });
+
+      return trainings;
+    } catch (error) {
+      throw new Error("Couldn't get trainings");
+    }
+  }
 }

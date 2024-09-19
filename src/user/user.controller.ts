@@ -36,6 +36,17 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Get('created-trainings')
+  findCreatedTrainings(@CurrentUser() currentUser: any) {
+    console.log('Current User:', currentUser);
+    return this.userService.findCreatedTrainings(currentUser['sub']);
+  }
+
+  @Get('trainings')
+  findAllTrainings(@CurrentUser() currentUser: any) {
+    return this.userService.findAllTrainings(currentUser['sub']);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
@@ -98,7 +109,7 @@ export class UserController {
       },
     }),
   )
-  async updateAvatar(
+  updateAvatar(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
     @CurrentUser() currentUser: any,
@@ -120,13 +131,13 @@ export class UserController {
 
   @Public()
   @Get('/send-email-confirmation/:id')
-  async sendEmailConfirmation(@Param('id') id: string) {
+  sendEmailConfirmation(@Param('id') id: string) {
     return this.userService.sendEmailConfirmation(id);
   }
 
   @Public()
   @Get('/confirmation/:id')
-  async confirmUser(@Param('id') id: string) {
+  confirmUser(@Param('id') id: string) {
     return this.userService.confirmUser(id);
   }
 }
