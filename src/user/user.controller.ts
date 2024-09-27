@@ -36,6 +36,11 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Get("/me")
+  findMe(@CurrentUser() currentUser: any) {
+    return this.userService.findOne(currentUser['sub']);
+  }
+
   @Get('created-trainings')
   findCreatedTrainings(@CurrentUser() currentUser: any) {
     console.log('Current User:', currentUser);
@@ -140,4 +145,5 @@ export class UserController {
   confirmUser(@Param('id') id: string) {
     return this.userService.confirmUser(id);
   }
+
 }

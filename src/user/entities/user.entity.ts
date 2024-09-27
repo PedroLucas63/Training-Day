@@ -5,7 +5,7 @@ export class User {
   password: string;
   accountConfirmed: boolean;
   dateOfBirth?: Date;
-  avatar: string | '/imgs/avatars/default.png';
+  avatar?: string;
   createdAt: Date;
   updatedAt: Date;
 }

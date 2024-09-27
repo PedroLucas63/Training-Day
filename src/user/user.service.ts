@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 import { User } from './entities/user.entity';
 import { MailService } from 'src/mail/mail.service';
-///TODO: Tratar saídas
+
 @Injectable()
 export class UserService {
   constructor(

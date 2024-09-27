@@ -6,9 +6,10 @@ import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
 
+  app.useGlobalPipes(new ValidationPipe());
   app.useStaticAssets(join(__dirname, '..', 'public'));
+  app.enableCors({ origin: process.env.FRONTEND_URL });
 
   await app.listen(3000);
 }

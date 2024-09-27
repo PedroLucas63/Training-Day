@@ -1,8 +1,6 @@
-import { Training } from './entities/training.entity';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateAndUpdateTrainingDto } from './dto/create-and-update-training.dto';
 import { PrismaService } from 'src/prisma.service';
-import * as bcrypt from 'bcrypt';
 import { JoinDto } from './dto/join.dto';
 
 @Injectable()
@@ -13,14 +11,6 @@ export class TrainingService {
     creatorId: string,
     createAndUpdateTrainingDto: CreateAndUpdateTrainingDto,
   ) {
-    if (createAndUpdateTrainingDto.password) {
-      const salt = await bcrypt.genSalt();
-      createAndUpdateTrainingDto.password = await bcrypt.hash(
-        createAndUpdateTrainingDto.password,
-        salt,
-      );
-    }
-
     try {
       const training = await this.prisma.training.create({
         data: {
@@ -38,6 +28,7 @@ export class TrainingService {
 
       return { training, participant };
     } catch (error) {
+      console.log(error);
       throw new Error("Couldn't create training");
     }
   }
@@ -45,9 +36,7 @@ export class TrainingService {
   async findAll() {
     return this.prisma.training.findMany({
       include: {
-        _count: {
-          select: { TrainingParticipants: true },
-        },
+        TrainingParticipants: true,
       },
     });
   }
@@ -66,6 +55,13 @@ export class TrainingService {
       where: {
         occurredIn: {
           gte: new Date(),
+        },
+      },
+      include: {
+        TrainingParticipants: {
+          select: {
+            participantId: true,
+          },
         },
       },
     });
@@ -100,14 +96,6 @@ export class TrainingService {
           createAndUpdateTrainingDto.maximumParticipants
       ) {
         throw new ForbiddenException('Maximum participants reached');
-      }
-
-      if (createAndUpdateTrainingDto.password) {
-        const salt = await bcrypt.genSalt();
-        createAndUpdateTrainingDto.password = await bcrypt.hash(
-          createAndUpdateTrainingDto.password,
-          salt,
-        );
       }
 
       return this.prisma.training.update({
@@ -178,12 +166,7 @@ export class TrainingService {
           throw new ForbiddenException('Password is required');
         }
 
-        const samePasswords = await bcrypt.compare(
-          joinDto.password,
-          training.password,
-        );
-
-        if (!samePasswords) {
+        if (joinDto.password !== training.password) {
           throw new ForbiddenException('Wrong password');
         }
       }
