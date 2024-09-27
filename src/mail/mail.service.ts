@@ -7,7 +7,7 @@ export class MailService {
   constructor(private mailerService: MailerService) {}
 
   async sendUserConfirmation(user: User) {
-    const url = `${process.env.FRONTEND_URL}/confirmation/${user.id}`;
+    const url = `http://localhost:3000/user/confirmation/${user.id}`;
 
     await this.mailerService.sendMail({
       to: user.email,
